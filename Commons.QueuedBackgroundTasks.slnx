@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Commons.QueuedBackgroundTasks.Abstractions/Commons.QueuedBackgroundTasks.Abstractions.csproj" />
+  <Project Path="Commons.QueuedBackgroundTasks.Extensions.InMemoryBackgroundTaskQueue/Commons.QueuedBackgroundTasks.Extensions.InMemoryBackgroundTaskQueue.csproj" />
+  <Project Path="Commons.QueuedBackgroundTasks.Extensions/Commons.QueuedBackgroundTasks.Extensions.csproj" />
+</Solution>
