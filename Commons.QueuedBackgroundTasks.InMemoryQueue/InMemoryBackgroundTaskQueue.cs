@@ -1,7 +1,7 @@
 ﻿using System.Threading.Channels;
 using Commons.QueuedBackgroundTasks.Abstractions;
 
-namespace Commons.QueuedBackgroundTasks.InMemoryBackgroundTaskQueue;
+namespace Commons.QueuedBackgroundTasks.InMemoryQueues;
 
 public class InMemoryBackgroundTaskQueue : IBackgroundTaskQueue
 {

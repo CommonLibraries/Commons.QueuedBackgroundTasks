@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Commons.QueuedBackgroundTasks.Extensions;
 
-public class DefaultBackgroundTaskDispatcher : IBackgroundTaskDispatcher
+internal class DefaultBackgroundTaskDispatcher : IBackgroundTaskDispatcher
 {
     private readonly IServiceProvider serviceProvider;
     public DefaultBackgroundTaskDispatcher(IServiceProvider serviceProvider)

@@ -1,11 +1,11 @@
 using Commons.QueuedBackgroundTasks.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Commons.QueuedBackgroundTasks.InMemoryBackgroundTaskQueue;
+namespace Commons.QueuedBackgroundTasks.InMemoryQueues;
 
 public static class InMemoryBackgroundTaskQueueExtensions
 {
-    public static IServiceCollection AddInMemoryBackgroundTaskQueue(IServiceCollection services)
+    public static IServiceCollection AddInMemoryBackgroundTaskQueue(this IServiceCollection services)
     {
         services.AddSingleton<IBackgroundTaskQueue, InMemoryBackgroundTaskQueue>();
         return services;

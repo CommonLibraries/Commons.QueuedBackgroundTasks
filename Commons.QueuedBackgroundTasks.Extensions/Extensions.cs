@@ -1,19 +1,16 @@
 ﻿using System.Reflection;
 using Commons.QueuedBackgroundTasks.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Commons.QueuedBackgroundTasks.Extensions;
 
 public static class Extensions
 {
-    public static IServiceCollection AddBackgroundTaskService(this IServiceCollection services)
-    {
-        services.AddTransient<IBackgroundTaskDispatcher, DefaultBackgroundTaskDispatcher>();
-        return services;    
-    }
-
     public static IServiceCollection AddBackgroundTaskHandlers(this IServiceCollection services, Assembly assembly)
     {
+        services.TryAddTransient<IBackgroundTaskDispatcher, DefaultBackgroundTaskDispatcher>();
+
         foreach (var type in assembly.GetTypes())
         {
             if (type.IsClass && !type.IsAbstract)

@@ -3,17 +3,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Commons.QueuedBackgroundTasks.Extensions;
+namespace Commons.QueuedBackgroundTasks.HostedServices;
 
-public abstract class BackgroundTaskRunnerHostedService : BackgroundService
+public abstract class DefaultQueuedHostedService : BackgroundService
 {
     protected readonly IBackgroundTaskQueue backgroundTaskQueue;
     protected readonly IServiceScopeFactory serviceScopeFactory;
-    protected readonly ILogger<BackgroundTaskRunnerHostedService> logger;
-    public BackgroundTaskRunnerHostedService(
+    protected readonly ILogger<DefaultQueuedHostedService> logger;
+    public DefaultQueuedHostedService(
         IBackgroundTaskQueue backgroundTaskQueue,
         IServiceScopeFactory serviceScopeFactory,
-        ILogger<BackgroundTaskRunnerHostedService> logger)
+        ILogger<DefaultQueuedHostedService> logger)
     {
         this.backgroundTaskQueue = backgroundTaskQueue;
         this.serviceScopeFactory = serviceScopeFactory;
@@ -38,7 +38,7 @@ public abstract class BackgroundTaskRunnerHostedService : BackgroundService
         await ProcessTasks(stoppingToken);
     }
 
-    protected abstract Task Prepare(Func<Task> next);
+    protected abstract Task Prepare(IServiceProvider serviceProvider, Func<Task> next, CancellationToken cancellationToken);
 
     protected async Task ProcessTasks(CancellationToken cancellationToken)
     {
@@ -66,7 +66,7 @@ public abstract class BackgroundTaskRunnerHostedService : BackgroundService
                         await task;
                     };
 
-                    await this.Prepare(next);
+                    await this.Prepare(serviceProvider, next, cancellationToken);
                 }
             }
             catch (Exception ex)

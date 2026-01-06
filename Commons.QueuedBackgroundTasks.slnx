@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="Commons.QueuedBackgroundTasks.Abstractions/Commons.QueuedBackgroundTasks.Abstractions.csproj" />
-  <Project Path="Commons.QueuedBackgroundTasks.Extensions.InMemoryBackgroundTaskQueue/Commons.QueuedBackgroundTasks.Extensions.InMemoryBackgroundTaskQueue.csproj" />
   <Project Path="Commons.QueuedBackgroundTasks.Extensions/Commons.QueuedBackgroundTasks.Extensions.csproj" />
+  <Project Path="Commons.QueuedBackgroundTasks.HostedServices/Commons.QueuedBackgroundTasks.HostedServices.csproj" Id="1460f7f1-a277-43a8-b404-497ed4dbe270" />
+  <Project Path="Commons.QueuedBackgroundTasks.InMemoryQueue/Commons.QueuedBackgroundTasks.InMemoryQueue.csproj" />
 </Solution>
