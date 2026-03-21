@@ -1,6 +1,9 @@
 namespace Commons.QueuedBackgroundTasks.Abstractions;
 
-public interface IContextualRunner
+/// <summary>
+/// This interface helps run a part of a background task handler in a specific context.
+/// </summary>
+public interface IBackgroundTaskContextualRunner
 {
     Task Run(
         string contextKey,

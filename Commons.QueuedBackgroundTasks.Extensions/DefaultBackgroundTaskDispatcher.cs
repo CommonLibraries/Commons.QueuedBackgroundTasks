@@ -11,9 +11,13 @@ internal class DefaultBackgroundTaskDispatcher : IBackgroundTaskDispatcher
         this.serviceProvider = serviceProvider;
     }
 
-    public async Task Execute<TBackgroundTask>(TBackgroundTask backgroundTask, CancellationToken cancellationToken = default) where TBackgroundTask : IBackgroundTask
+    public async Task Execute<TBackgroundTask>(
+        TBackgroundTask backgroundTask,
+        CancellationToken cancellationToken = default) where TBackgroundTask : IBackgroundTask
     {
-        var backgroundTaskHandler = this.serviceProvider.GetRequiredService<IBackgroundTaskHandler<TBackgroundTask>>();
+        var backgroundTaskHandler = this.serviceProvider.GetRequiredService<
+            IBackgroundTaskHandler<TBackgroundTask>
+        >();
         await backgroundTaskHandler.Handle(backgroundTask, cancellationToken);
     }
 }

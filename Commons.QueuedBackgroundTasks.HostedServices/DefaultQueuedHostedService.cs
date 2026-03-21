@@ -9,14 +9,20 @@ public abstract class DefaultQueuedHostedService : BackgroundService
 {
     protected readonly IBackgroundTaskQueue backgroundTaskQueue;
     protected readonly IServiceScopeFactory serviceScopeFactory;
+    protected readonly IBackgroundTaskHandlerLookup backgroundTaskHandlerLookup;
+    protected readonly IBackgroundTaskContextLookup backgroundTaskContextLookup;
     protected readonly ILogger<DefaultQueuedHostedService> logger;
     public DefaultQueuedHostedService(
         IBackgroundTaskQueue backgroundTaskQueue,
         IServiceScopeFactory serviceScopeFactory,
+        IBackgroundTaskHandlerLookup backgroundTaskHandlerLookup,
+        IBackgroundTaskContextLookup backgroundTaskContextLookup,
         ILogger<DefaultQueuedHostedService> logger)
     {
         this.backgroundTaskQueue = backgroundTaskQueue;
         this.serviceScopeFactory = serviceScopeFactory;
+        this.backgroundTaskHandlerLookup = backgroundTaskHandlerLookup;
+        this.backgroundTaskContextLookup = backgroundTaskContextLookup;
         this.logger = logger;
     }
 
@@ -38,7 +44,11 @@ public abstract class DefaultQueuedHostedService : BackgroundService
         await ProcessTasks(stoppingToken);
     }
 
-    protected abstract Task Prepare(IServiceProvider serviceProvider, Func<Task> next, CancellationToken cancellationToken);
+    protected abstract Task Prepare(
+        string? context,
+        IServiceProvider serviceProvider,
+        Func<Task> next,
+        CancellationToken cancellationToken);
 
     protected async Task ProcessTasks(CancellationToken cancellationToken)
     {
@@ -59,14 +69,22 @@ public abstract class DefaultQueuedHostedService : BackgroundService
                         if (dispatcherExecuteMethod is null)
                             throw new NotImplementedException();
 
-                        var task = dispatcherExecuteMethod?.MakeGenericMethod(backgroundTask.GetType()).Invoke(backgroundTaskDispatcher, [backgroundTask, cancellationToken]) as Task;
+                        var task = dispatcherExecuteMethod?.MakeGenericMethod(backgroundTask.GetType()).Invoke(backgroundTaskDispatcher, new object[] { backgroundTask, cancellationToken }) as Task;
                         if (task is null)
                             throw new NotImplementedException();
 
                         await task;
                     };
 
-                    await this.Prepare(serviceProvider, next, cancellationToken);
+                    var handlerType = this.backgroundTaskHandlerLookup.Get(backgroundTask.GetType());
+                    var context = handlerType is null ?
+                        null : this.backgroundTaskContextLookup.Get(handlerType);
+
+                    await this.Prepare(
+                        context,
+                        serviceProvider,
+                        next,
+                        cancellationToken);
                 }
             }
             catch (Exception ex)
