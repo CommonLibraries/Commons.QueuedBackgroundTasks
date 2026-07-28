@@ -1,23 +1,28 @@
-﻿using System.Threading.Channels;
+using System.Threading.Channels;
 using Commons.QueuedBackgroundTasks.Abstractions;
+using Commons.QueuedBackgroundTasks.Abstractions.Queues;
 
 namespace Commons.QueuedBackgroundTasks.InMemoryQueues;
 
-public class InMemoryBackgroundTaskQueue : IBackgroundTaskQueue
+public class InMemoryBackgroundTaskQueue : DefaultBackgroundTaskQueue
 {
     private readonly Channel<IBackgroundTask> tasks = Channel.CreateUnbounded<IBackgroundTask>();
-
-    public Task Queue(IBackgroundTask backgroundTask, CancellationToken cancellationToken = default)
+    private readonly IList<IBackgroundTaskQueueFilter> filters;
+    public InMemoryBackgroundTaskQueue(IEnumerable<IBackgroundTaskQueueFilter> filters) : base(filters)
     {
+        this.filters = filters.ToList();
+    }
+
+    public override async Task Enqueue(IBackgroundTask backgroundTask, CancellationToken cancellationToken = default)
+    {
+        await this.BeforeEnqueue(backgroundTask, cancellationToken);
         if (!tasks.Writer.TryWrite(backgroundTask))
         {
             throw new InvalidOperationException();
         }
-
-        return Task.CompletedTask;
     }
 
-    public async Task<IBackgroundTask> Dequeue(CancellationToken cancellationToken = default)
+    public override async Task<IBackgroundTask> Dequeue(CancellationToken cancellationToken = default)
     {
         var backgroundTask = await tasks.Reader.ReadAsync(cancellationToken);
         return backgroundTask;

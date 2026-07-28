@@ -1,6 +1,6 @@
-using Commons.QueuedBackgroundTasks.Abstractions;
+using Commons.QueuedBackgroundTasks.Abstractions.Contexts;
 
-namespace Commons.QueuedBackgroundTasks.Extensions;
+namespace Commons.QueuedBackgroundTasks.Extensions.Contexts;
 
 internal class DefaultBackgroundTaskContextLookup : IBackgroundTaskContextLookup
 {

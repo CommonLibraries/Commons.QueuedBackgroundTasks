@@ -1,4 +1,4 @@
-﻿namespace Commons.QueuedBackgroundTasks.Abstractions;
+namespace Commons.QueuedBackgroundTasks.Abstractions;
 
 public interface IBackgroundTask
 {

@@ -1,6 +1,9 @@
 using System.Reflection;
 using Commons.QueuedBackgroundTasks.Abstractions;
+using Commons.QueuedBackgroundTasks.Abstractions.Middlewares;
+using Commons.QueuedBackgroundTasks.Abstractions.Queues;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace Commons.QueuedBackgroundTasks.Extensions;
 
@@ -10,6 +13,8 @@ internal class DefaultBackgroundTaskServiceBuilder : IBackgroundTaskServiceBuild
     private readonly IDictionary<Type, string>? contextLookup;
     private readonly IServiceCollection services;
 
+    public IServiceCollection Services => this.services;
+
     public DefaultBackgroundTaskServiceBuilder(IServiceCollection services,
         IDictionary<Type, Type>? handlerLookup = null,
         IDictionary<Type, string>? contextLookup = null)
@@ -17,6 +22,18 @@ internal class DefaultBackgroundTaskServiceBuilder : IBackgroundTaskServiceBuild
         this.services = services;
         this.handlerLookup = handlerLookup;
         this.contextLookup = contextLookup;
+    }
+
+    public IBackgroundTaskServiceBuilder UseHostedService<THostedService>() where THostedService : class, IHostedService
+    {
+        this.services.AddHostedService<THostedService>();
+        return this;
+    }
+
+    public IBackgroundTaskServiceBuilder UseQueue<TQueue>() where TQueue : class, IBackgroundTaskQueue
+    {
+        this.services.AddSingleton<IBackgroundTaskQueue, TQueue>();
+        return this;
     }
 
     public IBackgroundTaskServiceBuilder AddBackgroundTaskHandlers(Assembly assembly, string? context = null)
@@ -45,6 +62,18 @@ internal class DefaultBackgroundTaskServiceBuilder : IBackgroundTaskServiceBuild
             }
         }
 
+        return this;
+    }
+
+    public IBackgroundTaskServiceBuilder UseFilter<TFilter>() where TFilter : class, IBackgroundTaskQueueFilter
+    {
+        this.services.AddTransient<IBackgroundTaskQueueFilter, TFilter>();
+        return this;
+    }
+
+    public IBackgroundTaskServiceBuilder UseMiddleware<TMiddleware>() where TMiddleware : class, IBackgroundTaskMiddleware
+    {
+        this.services.AddTransient<IBackgroundTaskMiddleware, TMiddleware>();
         return this;
     }
 }

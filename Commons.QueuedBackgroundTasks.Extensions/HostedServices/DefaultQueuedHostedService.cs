@@ -1,10 +1,16 @@
 using Commons.QueuedBackgroundTasks.Abstractions;
+using Commons.QueuedBackgroundTasks.Abstractions.Contexts;
+using Commons.QueuedBackgroundTasks.Abstractions.Middlewares;
+using Commons.QueuedBackgroundTasks.Abstractions.Queues;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Commons.QueuedBackgroundTasks.HostedServices;
+namespace Commons.QueuedBackgroundTasks.Extensions.HostedServices;
 
+/// <summary>
+/// A hosted service (long running service) that processes background tasks from a queue.
+/// </summary>
 public abstract class DefaultQueuedHostedService : BackgroundService
 {
     protected readonly IBackgroundTaskQueue backgroundTaskQueue;
@@ -44,11 +50,14 @@ public abstract class DefaultQueuedHostedService : BackgroundService
         await ProcessTasks(stoppingToken);
     }
 
-    protected abstract Task Prepare(
+    protected virtual Task Prepare(
         string? context,
         IServiceProvider serviceProvider,
         Func<Task> next,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken)
+    {
+        return next();
+    }
 
     protected async Task ProcessTasks(CancellationToken cancellationToken)
     {
@@ -62,7 +71,7 @@ public abstract class DefaultQueuedHostedService : BackgroundService
                     var serviceProvider = scope.ServiceProvider;
                     var backgroundTaskDispatcher = serviceProvider.GetRequiredService<IBackgroundTaskDispatcher>();
 
-                    Func<Task> next = async () =>
+                    Func<Task> pipeline = async () =>
                     {
                         var dispatcherType = backgroundTaskDispatcher.GetType();
                         var dispatcherExecuteMethod = dispatcherType?.GetMethod(nameof(IBackgroundTaskDispatcher.Execute));
@@ -80,10 +89,26 @@ public abstract class DefaultQueuedHostedService : BackgroundService
                     var context = handlerType is null ?
                         null : this.backgroundTaskContextLookup.Get(handlerType);
 
+                    var middlewares = serviceProvider.GetServices<IBackgroundTaskMiddleware>();
+                    var middlewareContext = new BackgroundTaskMiddlewareContext()
+                    {
+                        Context = context,
+                        CancellationToken = cancellationToken
+                    };
+
+                    foreach (var middleware in middlewares.Reverse())
+                    {
+                        var next = pipeline;
+                        pipeline = async () =>
+                        {
+                            await middleware.Invoke(backgroundTask, middlewareContext, next);
+                        };
+                    }
+
                     await this.Prepare(
                         context,
                         serviceProvider,
-                        next,
+                        pipeline,
                         cancellationToken);
                 }
             }

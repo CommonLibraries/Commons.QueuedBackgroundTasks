@@ -1,4 +1,4 @@
-namespace Commons.QueuedBackgroundTasks.Abstractions;
+namespace Commons.QueuedBackgroundTasks.Abstractions.Contexts;
 
 /// <summary>
 /// This interface helps run a part of a background task handler in a specific context.

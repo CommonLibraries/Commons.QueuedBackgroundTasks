@@ -1,4 +1,4 @@
-namespace Commons.QueuedBackgroundTasks.Abstractions;
+namespace Commons.QueuedBackgroundTasks.Abstractions.Contexts;
 
 /// <summary>
 /// This interface provide context key for a background task handler.
