@@ -50,7 +50,7 @@ public abstract class DefaultQueuedHostedService : BackgroundService
         await ProcessTasks(stoppingToken);
     }
 
-    protected virtual Task Prepare(
+    protected virtual Task ProcessTask(
         string? context,
         IServiceProvider serviceProvider,
         Func<Task> next,
@@ -105,7 +105,7 @@ public abstract class DefaultQueuedHostedService : BackgroundService
                         };
                     }
 
-                    await this.Prepare(
+                    await this.ProcessTask(
                         context,
                         serviceProvider,
                         pipeline,

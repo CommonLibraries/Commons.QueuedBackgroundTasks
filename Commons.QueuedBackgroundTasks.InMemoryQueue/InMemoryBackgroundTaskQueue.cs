@@ -1,6 +1,7 @@
 using System.Threading.Channels;
 using Commons.QueuedBackgroundTasks.Abstractions;
 using Commons.QueuedBackgroundTasks.Abstractions.Queues;
+using Commons.QueuedBackgroundTasks.Abstractions.Queues.Filters;
 
 namespace Commons.QueuedBackgroundTasks.InMemoryQueues;
 
@@ -13,12 +14,15 @@ public class InMemoryBackgroundTaskQueue : DefaultBackgroundTaskQueue
         this.filters = filters.ToList();
     }
 
-    public override async Task Enqueue(IBackgroundTask backgroundTask, CancellationToken cancellationToken = default)
+    protected override async Task Enqueue(
+        IBackgroundTask backgroundTask,
+        EnqueuingContext enqueuingContext,
+        EnqueuedContext enqueuedContext,
+        CancellationToken cancellationToken = default)
     {
-        await this.BeforeEnqueue(backgroundTask, cancellationToken);
         if (!tasks.Writer.TryWrite(backgroundTask))
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Failed to enqueue the background task.");
         }
     }
 

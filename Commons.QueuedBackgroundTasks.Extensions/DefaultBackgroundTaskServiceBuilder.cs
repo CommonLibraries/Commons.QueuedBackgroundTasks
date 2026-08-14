@@ -2,6 +2,7 @@ using System.Reflection;
 using Commons.QueuedBackgroundTasks.Abstractions;
 using Commons.QueuedBackgroundTasks.Abstractions.Middlewares;
 using Commons.QueuedBackgroundTasks.Abstractions.Queues;
+using Commons.QueuedBackgroundTasks.Abstractions.Queues.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
